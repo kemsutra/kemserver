@@ -6,29 +6,13 @@
 # EMAIL_USER=ingeniero1913@gmail.com
 # EMAIL_PASS=@!Condes00
 
-NODE_ENV=development
-
-# Database configuration
 DB_HOST=srv1524.hstgr.io
 DB_NAME=u495597488_research
 DB_USER=u495597488_user
 DB_PASSWORD=k3BiNPo+233#
 DB_PORT=3306
-
-# Email configuration
 EMAIL_USER=ingeniero1913@gmail.com
 EMAIL_PASS=@!Condes00
-
-# JWT Secret
 JWT_SECRET=$G9yla~|o
-
-# Stripe configuration
 STRIPE_SECRET_KEY=sk_test_51QPRv6RwTc0oih015LCjKU9SAmvzCYoAOaGUGQFWJ5AnOOIP0Baw5ee9cmrn4Xg5nnW8XV2sKw4YU9Vu1uR77BSG00dk7Mx569
-
-# Application domain
-YOUR_DOMAIN=https://kemservices-7e8885946d21.herokuapp.com
-DEV_DOMAIN=http://localhost:3000
-PROD_DOMAIN=https://kemservices-7e8885946d21.herokuapp.com
-
-# Server port (optional override for local development)
-PORT=3000
+YOUR_DOMAIN=http://localhost:3000  // Replace with your production frontend domain
