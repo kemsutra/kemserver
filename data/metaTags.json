@@ -1,0 +1,17 @@
+{
+  "US": {
+    "title": "Welcome to Our US Services",
+    "description": "Find out more about our services in the United States.",
+    "keywords": "services, US, administration"
+  },
+  "MX": {
+    "title": "Bienvenido a Nuestros Servicios en México",
+    "description": "Conozca más sobre nuestros servicios en México.",
+    "keywords": "servicios, MX, administración"
+  },
+  "Global": {
+    "title": "Welcome to Our Global Services",
+    "description": "Explore our global services offerings.",
+    "keywords": "services, global, administration"
+  }
+}
