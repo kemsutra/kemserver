@@ -4,7 +4,7 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const YOUR_DOMAIN = "http://localhost:3000";
 
 // Endpoint to create a Stripe Checkout session
-router.post("/create-checkout-session", async (req, res) => {
+router.post("/api/create-checkout-session", async (req, res) => {
   try {
     const { priceId } = req.body;
 
