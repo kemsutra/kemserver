@@ -5,30 +5,34 @@ const dotenv = require("dotenv");
 const bodyParser = require("body-parser");
 const mysql = require("mysql2");
 const bcrypt = require("bcrypt");
-//const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
-// Importing routes
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
 const detailsRoutes = require("./routes/detailsRoutes");
 const registerRoutes = require("./routes/registerRoutes");
 const stripeRoutes = require("./routes/stripeRoutes.js");
-
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
-console.log(
-  "Stripe API Key:",
-  process.env.STRIPE_SECRET_KEY ? "Loaded" : "Not Loaded"
-);
+require("dotenv").config();
 
 const SERVER_URL =
   process.env.NODE_ENV === "production"
     ? process.env.PROD_DOMAIN
     : process.env.DEV_DOMAIN;
-
+// Log para verificar el valor de SERVER_URL
+console.log("SERVER_URL:", SERVER_URL);
 const port = process.env.PORT || 3000;
-const app = express();
+const allowedOrigins = process.env.ALLOWED_ORIGINS.split(",");
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+};
 
-// Create a MySQL connection pool
+const app = express();
 const pool = mysql.createPool({
   connectionLimit: 2,
   host: process.env.DB_HOST,
@@ -39,32 +43,23 @@ const pool = mysql.createPool({
 });
 
 app.use(bodyParser.json());
-app.use(
-  cors({
-    origin: process.env.SERVER_URL,
-    methods: ["GET", "POST"],
-    allowedHeaders: ["Content-Type"],
-  })
-);
+app.use(cors(corsOptions));
 app.use(express.static("public"));
 
-// Middleware to handle MySQL connections with error handling
-app.use((req, res, next) => {
+app.use(async (req, res, next) => {
   if (!pool) {
     console.error("Database pool is not initialized");
     return res.status(500).json({ message: "Database pool is not available" });
   }
 
-  req.pool = pool;
-
-  pool.query("SELECT 1", (err) => {
-    if (err) {
-      console.error("Error connecting to the database:", err);
-      return res.status(500).json({ message: "Database connection failed" });
-    }
-
+  try {
+    await pool.promise().query("SELECT 1");
+    req.pool = pool;
     next();
-  });
+  } catch (err) {
+    console.error("Error connecting to the database:", err);
+    res.status(500).json({ message: "Database connection failed" });
+  }
 });
 
 // Logging middleware
@@ -93,7 +88,7 @@ app.use((err, req, res, next) => {
 
 // Start the server
 app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+  console.log(`Listen to the Server running on port ${SERVER_URL}`);
 });
 
 module.exports = pool.promise();

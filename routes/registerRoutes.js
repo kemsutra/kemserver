@@ -63,7 +63,7 @@ router.post("/register", async (req, res) => {
           name = COALESCE(VALUES(name), name), 
           email = VALUES(email), 
           borned = COALESCE(VALUES(borned), borned),
-          password = VALUES(password)
+          password = CASE WHEN VALUES(password) IS NOT NULL THEN VALUES(password) ELSE password END
     `;
 
     console.log("Executing SQL query:", query);
@@ -74,56 +74,47 @@ router.post("/register", async (req, res) => {
       hashedPassword,
     ]);
 
-    req.pool.query(
-      query,
-      [finalName, email, finalBorned, hashedPassword],
-      (err, results) => {
-        if (err) {
-          console.error("SQL Error during insert or update:", err.message);
-          return res.status(500).json({
-            status: "error",
-            message: "Something went wrong, please try again later.",
-          });
-        }
+    const [results] = await pool.query(query, [
+      finalName,
+      email,
+      finalBorned,
+      hashedPassword,
+    ]);
 
-        console.log("Query result:", results);
+    console.log("Query result:", results);
 
-        const userId = results.insertId > 0 ? results.insertId : null;
+    const userId = results.insertId > 0 ? results.insertId : null;
 
-        if (!userId) {
-          console.log(
-            "No new user inserted. Fetching existing user ID for email:",
-            email
-          );
+    if (!userId) {
+      console.log(
+        "No new user inserted. Fetching existing user ID for email:",
+        email
+      );
 
-          req.pool.query(
-            "SELECT id FROM user_data WHERE email = ?",
-            [email],
-            (err, rows) => {
-              if (err || rows.length === 0) {
-                console.error(
-                  "Error retrieving user ID:",
-                  err ? err.message : "No rows found."
-                );
-                return res.status(500).json({
-                  status: "error",
-                  message: "Failed to retrieve user ID.",
-                });
-              }
-              const retrievedUserId = rows[0].id;
-              console.log("Retrieved user ID:", retrievedUserId);
+      const [rows] = await pool.query(
+        "SELECT id FROM user_data WHERE email = ?",
+        [email]
+      );
 
-              finalBody
-                ? processUserDetails(retrievedUserId, finalBody, res)
-                : null;
-            }
-          );
-        } else {
-          console.log("New user inserted with ID:", userId);
-          finalBody ? processUserDetails(userId, finalBody, res) : null;
-        }
+      if (rows.length === 0) {
+        console.error("Error retrieving user ID: No rows found.");
+        return res.status(500).json({
+          status: "error",
+          message: "Failed to retrieve user ID.",
+        });
       }
-    );
+      const retrievedUserId = rows[0].id;
+      console.log("Retrieved user ID:", retrievedUserId);
+
+      finalBody ? processUserDetails(retrievedUserId, finalBody, res) : null;
+    } else {
+      console.log("New user inserted with ID:", userId);
+
+      return res.status(201).json({
+        status: "exito",
+        message: "Registro adicionado.",
+      });
+    }
   } catch (err) {
     console.error("Error processing registration:", err.message);
     return res.status(500).json({

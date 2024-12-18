@@ -117,7 +117,7 @@ router.post("/register", async (req, res) => {
           );
         } else {
           // Debugging: Log that a new user was inserted
-          console.log("New user inserted with ID:", userId);
+          console.log("P New user inserted with ID:", userId);
 
           // Process user details for the new user
           //processUserDetails(userId, finalBody, res); // Pass body to process
